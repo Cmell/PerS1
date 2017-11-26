@@ -69,6 +69,11 @@ jsPsych.plugins["sequential-priming"] = (function() {
     trial.prompt = (typeof trial.prompt === 'undefined') ? "" : trial.prompt;
     trial.response_window = (typeof trial.response_window === 'undefined') ? [0, Infinity] : trial.response_window;
 
+    trial.collect_response_during_feedback =
+      (typeof trial.collect_response_during_feedback === 'undefine') ? true : trial.collect_response_during_feedback;
+    // If true, the collect_response_during_feedback attribute will still
+    // record responses if they are the first ones during, say, timeout feedback
+
     // The trial.key_to_advance can be set a keycode. If not set,
     // then no key is needed to advance the trial after an incorrect response
     // or a timeout. If it is set, then that key must be pressed.
@@ -153,7 +158,7 @@ var show_feedback = function() {
     // If a keypress to advance on incorrect is set, AND we are wrong or
     // timed out, then wait for a key. Otherwise, just advance after the
     // feedback time limit.
-    var needKeyPress = typeof trial.key_to_advance !== 'undefined' && ! (correct == true);
+    var needKeyPress = typeof trial.key_to_advance !== 'undefined' && !(correct == true);
     if (needKeyPress) {
       //jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
       advanceTrialListener = jsPsych.pluginAPI.getKeyboardResponse({
@@ -176,6 +181,7 @@ var show_feedback = function() {
 var advance_trial = function (info) {
   // keyboard listener specifically for advancing the trial during
   // feedback after an incorrect or timeout response.
+  ;
   end_trial();
 };
 
@@ -197,7 +203,7 @@ var endStimulus = function() {
 
 // function to end trial when it is time
 var end_trial = function() {
-
+  ;
   // kill any remaining setTimeout handlers
   clearTimeoutHandlers();
 
@@ -235,14 +241,13 @@ var end_trial = function() {
 
 // function to handle responses by the subject
 var after_response = function(info) {
+  ;
   // If we are waiting for the participant to advance the trial after
   // an incorrect response or timeout, just send us to the endTrial function
   // if they press the right thing.
 
   // For now, only allow one response per stimulus
-  var response_in_window = (info.rt >= trial.response_window[0] && info.rt <= trial.response_window[1]);
-  if (typeof rt === 'undefined' && response_in_window) {
-
+  var process_response = function () {
     for (var j = 0; j < trial.choices.length; j++) {
       keycode = (typeof trial.choices[j] == 'string') ? jsPsych.pluginAPI.convertKeyCharacterToKeyCode(trial.choices[j]) : trial.choices[j];
       if (info.key == keycode) {
@@ -254,12 +259,20 @@ var after_response = function(info) {
         // for now, a single correct response implies correct
         correct = info.key == trial.correct_choice;
 
-        if (trial.response_ends_stimulus[whichStimulus] || trial.response_ends_trial) {
-          endStimulus();
-        }
         break;
       }
     }
+  }
+
+  var response_in_window = (info.rt >= trial.response_window[0] && info.rt <= trial.response_window[1]);
+  if (typeof rt === 'undefined' && response_in_window) {
+    process_response();
+    if (trial.response_ends_stimulus[whichStimulus] || trial.response_ends_trial) {
+      endStimulus();
+    }
+
+  } else if (typeof rt === 'undefined' && trial.collect_response_during_feedback) {
+    process_response();
   }
 };
 
@@ -276,7 +289,7 @@ function showNextStimulus() {
       id: 'jspsych-sequential-priming-stimulus',
     }));
   }
-  //debugger;
+  //;
   //show prompt if there is one
   if (trial.prompt !== "") {
     display_element.append(trial.prompt);

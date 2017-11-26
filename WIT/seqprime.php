@@ -34,7 +34,7 @@ session_start();
   var numIdTrials = 60;
   // These numbers of stimuli will be drawn from the directory for each set.
   var numPrimeToDraw = 0; // if equal to 0 or less, then all primes in the prime directory are used
-  var numTargetToDraw = (numTaskTrials / 2) / 4; // if equal to 0 or less, then all targets in the target directory are used
+  var numTargetToDraw = 0; // if equal to 0 or less, then all targets in the target directory are used
   var race_timing_parameters = [400, 200, 200, 500];
   var id_timing_parameters = [400, 200, 500];
   var imageSize = [250, 250]; var primeImgSize = [179, 250];
@@ -82,6 +82,7 @@ session_start();
     "left_target",
     "right_target",
     "seed",
+    "block_num",
     "trial_index",
     "trial_type",
     "trial_num",
@@ -415,7 +416,9 @@ session_start();
     response_ends_trial: true,
     timeline: [],
     timing_response: race_timing_parameters[2] + race_timing_parameters[3],
-    response_window: [race_timing_parameters[0] + race_timing_parameters[1], Infinity],
+    response_window: [race_timing_parameters[0] + race_timing_parameters[1],
+                      race_timing_parameters[0] + race_timing_parameters[1] + race_timing_parameters[3]],
+    collect_response_during_feedback: true,
     feedback: true,
     key_to_advance: 32,
     //feedback_duration: 1000, // Only activate these if the check should show.
@@ -437,7 +440,9 @@ session_start();
     response_ends_trial: true,
     timeline: [],
     timing_response: id_timing_parameters[1] + id_timing_parameters[2],
-    response_window: [id_timing_parameters[0] + id_timing_parameters[1], Infinity],
+    response_window: [id_timing_parameters[0] + id_timing_parameters[1],
+                      id_timing_parameters[0] + id_timing_parameters[1] + id_timing_parameters[2]],
+    collect_response_during_feedback: true,
     feedback: true,
     key_to_advance: 32,
     //feedback_duration: 1000, // Only activate these if the check should show.
@@ -457,6 +462,15 @@ session_start();
     'nearright': 3,
     'farright': 4
   }
+
+  if (condition == 'idTaskFirst') {
+    var idBlockNum = 1;
+    var raceBlockNum = 2;
+  } else if (condition == 'raceTaskFirst') {
+    var idBlockNum = 2;
+    var raceBlockNum = 1;
+  }
+
   // Race task trials
   var curPrime = 0; var curTarget = 0;
   for (i=0; i<numTaskTrials; i++){
@@ -488,11 +502,12 @@ session_start();
       stimuli: [fixCross, primeStim, targetStim, maskStim],
       data: {
         block_type: 'race_wit',
-        prime_cat: prime.prime_type,
+        prime_type: prime.prime_type,
         target_type: target.target_type,
         prime_id: prime.stId,
         target_id: target.stId,
-        trial_num: i + 1
+        trial_num: i + 1,
+        block_num: raceBlockNum
       },
       correct_choice: correct_answer
     };
@@ -531,7 +546,8 @@ session_start();
         block_type: 'id_wit',
         target_type: target.target_type,
         target_id: target.stId,
-        trial_num: i + 1
+        trial_num: i + 1,
+        block_num: idBlockNum
       },
       correct_choice: correct_answer
     };

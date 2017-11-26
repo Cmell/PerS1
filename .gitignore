@@ -1,0 +1,6 @@
+*.png
+*.jpg
+Resources/PID.csv
+Resources/Data/*
+Resources/GrayGuns/*
+Resources/GrayNonguns/*
