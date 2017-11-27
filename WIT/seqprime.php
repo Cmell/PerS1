@@ -31,7 +31,7 @@ session_start();
   var instr1, breakTxt, instructStim, countdown, countdownNumbers;
   var timeline = [];
   var numTaskTrials = 240;
-  var numIdTrials = 60;
+  var numIdTrials = 100;
   // These numbers of stimuli will be drawn from the directory for each set.
   var numPrimeToDraw = 0; // if equal to 0 or less, then all primes in the prime directory are used
   var numTargetToDraw = 0; // if equal to 0 or less, then all targets in the target directory are used
@@ -622,13 +622,13 @@ session_start();
   var allWITImages = preloadResizedImages(imgNamesArr);
 
   var goToSurvey = function () {
-    window.location = 'https://cuboulder.qualtrics.com/jfe/form/SV_5hIxf4tTk2bZhhH?pid=' + pid;
+    window.location = 'https://cuboulder.qualtrics.com/jfe/form/SV_2oy4Qk6csHb8xNP?pid=' + pid;
   };
 
   var startExperiment = function () {
     jsPsych.init({
     	timeline: timeline,
-      fullscreen: false,
+      fullscreen: true,
       on_finish: goToSurvey
     });
   };
